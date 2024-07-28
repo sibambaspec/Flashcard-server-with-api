@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import datetime
 
@@ -55,6 +55,25 @@ def delete_card(card_id):
 
     return jsonify({"message": "Card deleted successfully"})
 
+@app.route('/edit_card/<int:card_id>', methods=['POST'])
+def edit_card(card_id):
+    card = Card.query.get(card_id)
+    if not card:
+        return jsonify({"error": "Card not found"}), 404
+
+    data = request.json
+    question = data.get('question')
+    answer = data.get('answer')
+
+    if not question or not answer:
+        return jsonify({"error": "Question and answer are required"}), 400
+
+    card.question = question
+    card.answer = answer
+    db.session.commit()
+
+    return jsonify({"message": "Card updated successfully"})
+
 @app.route('/review', methods=['GET'])
 def review():
     today = datetime.date.today()
@@ -84,4 +103,4 @@ def update_review(card_id):
     return jsonify({"message": "Review updated successfully"})
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=7000)
+    app.run(host='0.0.0.0', port=5675)

@@ -59,6 +59,9 @@
         .delete-button {
             background-color: #dc3545;
         }
+        .edit-button {
+            background-color: #ffc107;
+        }
         @media (max-width: 600px) {
             body {
                 padding: 10px;
@@ -84,7 +87,7 @@
                     <th>ID</th>
                     <th>Question</th>
                     <th>Answer</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -93,11 +96,29 @@
                     <td>{{ card.id }}</td>
                     <td>{{ card.question }}</td>
                     <td>{{ card.answer }}</td>
-                    <td><button class="delete-button" onclick="deleteCard({{ card.id }})">Delete</button></td>
+                    <td>
+                        <button class="edit-button" onclick="editCard({{ card.id }}, '{{ card.question }}', '{{ card.answer }}')">Edit</button>
+                        <button class="delete-button" onclick="deleteCard({{ card.id }})">Delete</button>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+    </div>
+    <div class="container" id="edit-form" style="display: none;">
+        <h2>Edit Flashcard</h2>
+        <form id="editCardForm">
+            <input type="hidden" id="editCardId">
+            <div>
+                <label for="editCardQuestion">Question:</label>
+                <input type="text" id="editCardQuestion" name="question" required>
+            </div>
+            <div>
+                <label for="editCardAnswer">Answer:</label>
+                <input type="text" id="editCardAnswer" name="answer" required>
+            </div>
+            <button type="submit">Save</button>
+        </form>
     </div>
     <script>
         function deleteCard(cardId) {
@@ -111,6 +132,34 @@
             })
             .catch(error => console.error('Error:', error));
         }
+
+        function editCard(cardId, question, answer) {
+            document.getElementById('editCardId').value = cardId;
+            document.getElementById('editCardQuestion').value = question;
+            document.getElementById('editCardAnswer').value = answer;
+            document.getElementById('edit-form').style.display = 'block';
+        }
+
+        document.getElementById('editCardForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var cardId = document.getElementById('editCardId').value;
+            var question = document.getElementById('editCardQuestion').value;
+            var answer = document.getElementById('editCardAnswer').value;
+
+            fetch(`/edit_card/${cardId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question: question, answer: answer })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                window.location.reload();
+            })
+            .catch(error => console.error('Error:', error));
+        });
     </script>
 </body>
 </html>

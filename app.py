@@ -103,4 +103,4 @@ def update_review(card_id):
     return jsonify({"message": "Review updated successfully"})
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5675)
+    app.run(host='0.0.0.0', port=5000)
